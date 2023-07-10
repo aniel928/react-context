@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
+import UserContext from './context/UserContext';
 
 // App Components
 import Header from "./components/Header";
@@ -10,64 +11,65 @@ import Settings from "./components/Settings";
 import NotFound from "./components/NotFound";
 
 function App() {
-  const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [accentColor, setAccentColor] = useState('#63537d');
-  const [fontPercentage, setFontPercentage] = useState(100);
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [accentColor, setAccentColor] = useState('#63537d');
+    const [fontPercentage, setFontPercentage] = useState(100);
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
+    useEffect(() => {
+        if (isDarkMode) {
+            document.body.classList.add('dark');
+        } else {
+            document.body.classList.remove('dark');
+        }
+        document.body.style.fontSize = `${fontPercentage}%`;
+    }, [isDarkMode, fontPercentage]);
+
+    const signInUser = (username, password) => {
+        const newUser = {
+            username,
+            password
+        };
+        setUser(newUser);
     }
-    document.body.style.fontSize = `${fontPercentage}%`;
-  }, [isDarkMode, fontPercentage]);
 
-  const signInUser = (username, password) => {
-    const newUser = {
-      username,
-      password
-    };
-    setUser(newUser);
-  }
+    const signOutUser = () => {
+        setUser(null);
+    }
 
-  const signOutUser = () => {
-    setUser(null);
-  }
+    const toggleDarkMode = () => {
+        setIsDarkMode(currentMode => !currentMode);
+    }
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(currentMode => !currentMode);
-  }
-
-  return (
-    <div>
-      <Header
-        user={user}
-        accentColor={accentColor} />
-      <Routes>
-        <Route path="/" element={<Home user={user} />} />
-        <Route path="signin" element={
-          <UserSignIn
-            signIn={signInUser}
-            accentColor={accentColor} />
-        } />
-        <Route path="signout" element={<UserSignOut signOut={signOutUser} />} />
-        <Route path="settings" element={
-          <Settings
-            user={user}
-            isDarkMode={isDarkMode}
-            toggleDarkMode={toggleDarkMode}
-            accentColor={accentColor}
-            updateAccentColor={setAccentColor}
-            fontPercentage={fontPercentage}
-            updateFontPercentage={setFontPercentage} />
-        } />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
-  );
+    return (
+        <UserContext.Provider value={{ user }}>
+            <div>
+                <Header
+                    accentColor={accentColor} />
+                <Routes>
+                    <Route path="/" element={<Home user={user} />} />
+                    <Route path="signin" element={
+                        <UserSignIn
+                            signIn={signInUser}
+                            accentColor={accentColor} />
+                    } />
+                    <Route path="signout" element={<UserSignOut signOut={signOutUser} />} />
+                    <Route path="settings" element={
+                        <Settings
+                            user={user}
+                            isDarkMode={isDarkMode}
+                            toggleDarkMode={toggleDarkMode}
+                            accentColor={accentColor}
+                            updateAccentColor={setAccentColor}
+                            fontPercentage={fontPercentage}
+                            updateFontPercentage={setFontPercentage} />
+                    } />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </div>
+        </UserContext.Provider>
+    );
 }
 
 export default App;
